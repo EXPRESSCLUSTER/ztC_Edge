@@ -56,13 +56,20 @@ On the Windows client PC, prepare followings.
 
 Open ztC Edge console, go to `Virtual CDs`
 
-- `Create VCD` > input `almalinux8.6` as `VCD Name`, `Upload ISO file`, `Browse` > select AlimLinux ISO file > `Finish`
+- `Create VCD` > input `AlmaLinux8.6` as `VCD Name`, `Upload ISO file`, `Browse` > select AlimLinux ISO file > `Finish`
 
-- `Create VCD` > input `Win2022` as `VCD Name`, `Upload ISO file`, `Browse` > select AlimLinux ISO file > `Finish`
+- `Create VCD` > input `Win2022` as `VCD Name`, `Upload ISO file`, `Browse` > select Windows Server ISO file > `Finish`
 
 ## Building VMs to be protected
 
 Create Windows VMs which have SQL Server, IIS or an application to be monitored.
+
+Go to `Virtual Machines` > `Create`: configure the VM. Following spec is minimum configuration for Windows Server 2022 VM.
+
+- 1 vCPU
+- 4096 MB Virtual Memory
+- 32 GB Volume
+- VCD : Win2022
 
 ### Installing and configuring MS SQL Server to be monitored by SSS via ODBC
 
@@ -99,9 +106,7 @@ Open `services.msc` > restart SQL Server service e.g. `SQL Server (SQLEXPRESS)`
 
 ## Building SSS VM
 
-Open and login to ztC Edge Web Console > go to `Virtual CDs` > `Create VCD` > input `AlmaLinux8.6` as `VCD Name`, select `Upload ISO file`, specify the AlmaLinux ISO file > `Finish`
-
-Goto `Virtual Machines` > `Create`: configure the VM with the following specs.
+Go to `Virtual Machines` > `Create`: configure the VM with the following specs.
 
 - 1 vCPU
 - 2048 MB Virtual Memory
@@ -190,7 +195,7 @@ REM Login to SSS VM
 ssh root@%IP%
 ```
 
-On the Windows client PC, open ztC Edge Console > `Virtual Machines` > Select `sss` VM > `CD Drivers & USB Devides` tab > Select `almalinux8.6` > `Insert a CD`
+On the Windows client PC, open ztC Edge Console > `Virtual Machines` > Select `sss` VM > `CD Drivers & USB Devices` tab > Select `AlmaLinux8.6` > `Insert a CD`
 
 Login to SSS VM. Issue the followings that preparing installation form DVD, installing packages and licenses, configuring firewall and SELinux.
 
@@ -414,7 +419,7 @@ configure ODBC Monitor resource
 
 ## Operation
 
-Configure SSS VM to be started/stoped on strting/stopping ztC Edge. SSS VM starts/stops the protected VMs with its Exec resources.
+Configure SSS VM to be started/stopped on starting/stopping ztC Edge. SSS VM starts/stops the protected VMs with its Exec resources.
 
 ### Start VMs
 
@@ -422,7 +427,7 @@ Protected VMs may be configured starting automatically by ztC Edge. In the case,
 
 ### Stop VMs
 
-If a protected VM is stopped, SSS treats it as a failure and boots the VM by the recovery process. Therefore, note taht on intentional stop of a VM :
+If a protected VM is stopped, SSS treats it as a failure and boots the VM by the recovery process. Therefore, note that on intentional stop of a VM :
 
 - To stop a protected VM by ECX WebUI.
   1. On ECX WebUI, stop the exec resource for the VM.
