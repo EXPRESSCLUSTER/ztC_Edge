@@ -122,11 +122,6 @@ Select `Minimal install` at `SOFTWARE SELECTION` during installation.
 After installation, reboot the VM, login to the console of the VM as root user.
 Configure host name, IP address, then configure SSH remote access to ztC Edge host.
 
-----
-**[NOTE]**  SSS VM needs to be IP reachable with Windows VMs to be protected and ztC Edge host.
-
-----
-
 ```sh
 # IP address of SSS VM
 IPsss=192.168.2.10
@@ -134,23 +129,6 @@ IPsss=192.168.2.10
 hostnamectl set-hostname sss
 nmcli c m ens3f0 ipv4.method manual ipv4.addresses $IPsss/24 connection.autoconnect yes
 ```
-
-----
-**[NOTE]**  Confirm if the ztC Edge host is possible to be login from SSS VM with root user.
-At the first time of the login, it requires changing the password.
-
-Log in to ztC Edge Host console with `ssh`. Then follow changing root password like following.
-```sh
-> IPztc=192.168.2.90
-> ssh root@$IPztc
-Password:KeepRunning
-
-Password must be changed on first login.
-:
-New password:
-```
-----
-
 
 ```sh
 # IP address of ztC Edge host
@@ -170,6 +148,24 @@ sed -i -e 's/^SELINUX=.*/SELINUX=disabled/' /etc/selinux/config
 # reboot is required for disabling selinux take effect.
 reboot
 ```
+---
+**[NOTE]**
+- SSS VM needs to be IP reachable with Windows VMs to be protected and ztC Edge host.
+
+- Confirm if the ztC Edge host is possible to be login from SSS VM with root user.
+At the first time of the login, it requires changing the password.
+
+    Log in to ztC Edge Host console with `ssh`. Then follow changing root password like following.
+    ```sh
+    > IPztc=192.168.2.90
+    > ssh root@$IPztc
+    Password:KeepRunning
+
+    Password must be changed on first login.
+    :
+    New password:
+    ```
+----
 
 ### Installing SSS
 
