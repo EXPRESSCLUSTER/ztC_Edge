@@ -50,7 +50,7 @@ On the Windows client PC, prepare followings.
 
 - [AlmaLinux 8.6 x86_64](https://mirrors.almalinux.org/isos/x86_64/8.6.html) ISO
 
-- [AVCLI RPM packge](https://www.stratus.com/services-support/downloads/?tab=everrun) : (go to *Drivers and Tools* to get it: refer to [the document from Stratus](https://everrundoc.stratus.com/7.9.2.0/en-us/Default.htm?_ga=2.229234200.525908631.1667277272-2020070607.1616713667#Help/P02_Support/C02_CLI/S01_CmdOver/T_InstalLinuxClient.htm?TocPath=Supporting%2520Documents%257CeverRun%2520Command%2520Line%2520Interface%2520Reference%257CAVCLI%2520Command%2520Overview%257C_____2) )
+- [AVCLI RPM package](https://www.stratus.com/services-support/downloads/?tab=everrun) : (go to *Drivers and Tools* to get it: refer to [the document from Stratus](https://everrundoc.stratus.com/7.9.2.0/en-us/Default.htm?_ga=2.229234200.525908631.1667277272-2020070607.1616713667#Help/P02_Support/C02_CLI/S01_CmdOver/T_InstalLinuxClient.htm?TocPath=Supporting%2520Documents%257CeverRun%2520Command%2520Line%2520Interface%2520Reference%257CAVCLI%2520Command%2520Overview%257C_____2) )
 
 - Windows Server (2022 was used for the validation) ISO
 
@@ -58,7 +58,7 @@ On the Windows client PC, prepare followings.
 
 Open ztC Edge console, go to `Virtual CDs`
 
-- `Create VCD` > input `AlmaLinux8.6` as `VCD Name`, `Upload ISO file`, `Browse` > select AlimLinux ISO file > `Finish`
+- `Create VCD` > input `AlmaLinux8.6` as `VCD Name`, `Upload ISO file`, `Browse` > select AlmaLinux ISO file > `Finish`
 
 - `Create VCD` > input `Win2022` as `VCD Name`, `Upload ISO file`, `Browse` > select Windows Server ISO file > `Finish`
 
