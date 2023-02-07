@@ -50,6 +50,8 @@ On the Windows client PC, prepare followings.
 
 - [AlmaLinux 8.6 x86_64](https://mirrors.almalinux.org/isos/x86_64/8.6.html) ISO
 
+- [AVCLI RPM packge](https://www.stratus.com/services-support/downloads/?tab=everrun) : (go to *Drivers and Tools* to get it: refer to [the document from Stratus](https://everrundoc.stratus.com/7.9.2.0/en-us/Default.htm?_ga=2.229234200.525908631.1667277272-2020070607.1616713667#Help/P02_Support/C02_CLI/S01_CmdOver/T_InstalLinuxClient.htm?TocPath=Supporting%2520Documents%257CeverRun%2520Command%2520Line%2520Interface%2520Reference%257CAVCLI%2520Command%2520Overview%257C_____2) )
+
 - Windows Server (2022 was used for the validation) ISO
 
 - Microsoft SQL Server (2022 was used for the validation) and SQL Server Management Studio installation packages
@@ -64,7 +66,7 @@ Open ztC Edge console, go to `Virtual CDs`
 
 Create Windows VMs which have SQL Server, IIS or an application to be monitored.
 
-Go to `Virtual Machines` > `Create`: configure the VM. Following spec is minimum configuration for Windows Server 2022 VM.
+Go to `Virtual Machines` > `Create`: configure the VM. Following spec is for minimum configuration of Windows Server 2022 VM.
 
 - 1 vCPU
 - 4096 MB Virtual Memory
@@ -120,28 +122,15 @@ Boot the SSS VM.
 Select `Minimal install` at `SOFTWARE SELECTION` during installation.
 
 After installation, reboot the VM, login to the console of the VM as root user.
-Configure host name, IP address, then configure SSH remote access to ztC Edge host.
+Configure host name, IP address, SELinux.
 
 ```sh
-# IP address of SSS VM
-IPsss=192.168.2.10
+# IP address and Netmask of SSS VM
+IPsss='192.168.2.10/24'
 
 hostnamectl set-hostname sss
-nmcli c m ens3f0 ipv4.method manual ipv4.addresses $IPsss/24 connection.autoconnect yes
-```
+nmcli c m ens3f0 ipv4.method manual ipv4.addresses $IPsss connection.autoconnect yes
 
-```sh
-# IP address of ztC Edge host
-IPztc=192.168.2.90
-
-# Make ssh key files. Note not to set password on the key.
-yes no | ssh-keygen -t rsa -f /root/.ssh/id_rsa -N ""
-
-# Make ssh access from SSS VM to ztC Edge without password.
-ssh-copy-id $IPztc
-```
-
-```sh
 # Disable selinux
 sed -i -e 's/^SELINUX=.*/SELINUX=disabled/' /etc/selinux/config
 
@@ -149,23 +138,9 @@ sed -i -e 's/^SELINUX=.*/SELINUX=disabled/' /etc/selinux/config
 reboot
 ```
 ---
-**[NOTE]**
-- SSS VM needs to be IP reachable with Windows VMs to be protected and ztC Edge host.
+**[NOTE]** SSS VM needs to be IP reachable with Windows VMs to be protected and ztC Edge host.
 
-- Confirm if the ztC Edge host is possible to be login from SSS VM with root user.
-At the first time of the login, it requires changing the password.
-
-    Log in to ztC Edge Host console with `ssh`. Then follow changing root password like following.
-    ```sh
-    > IPztc=192.168.2.90
-    > ssh root@$IPztc
-    Password:KeepRunning
-
-    Password must be changed on first login.
-    :
-    New password:
-    ```
-----
+---
 
 ### Installing SSS
 
@@ -180,12 +155,13 @@ On the Windows client PC, open `cmd.exe` and issue the followings
 REM Specifying IP address of SSS VM.
 set IP=192.168.2.10
 
-REM Copying SSS install package and licenses (Base, Alert Service and Agents) to SSS VM.
+REM Copying SSS install package, its licenses (Base, Alert Service and Agents) and AVCLI install package to SSS VM.
 scp .\expressclssss-5.0.2-1.x86_64.rpm root@%IP%:/tmp
 scp .\XSSS5.x-lin1.key root@%IP%:/tmp
 scp .\ECX5.x-AltSvc-lin1.key root@%IP%:/tmp
 scp .\ECX5.x-DBagent-lin1.key root@%IP%:/tmp
 scp .\ECX5.x-ISagent-lin1.key root@%IP%:/tmp
+scp .\avcli-7.9.0.0_0-229.x86_64.rpm root@%IP%:/tmp
 
 REM Login to SSS VM
 ssh root@%IP%
@@ -213,9 +189,10 @@ gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-AlmaLinux
 EOF
 
-# Installing required packages and SSS
-yum install -y --disablerepo=* --enablerepo=media* tar unixODBC
+# Installing required packages then SSS and AVCLI command
+yum install -y --disablerepo=* --enablerepo=media* tar unixODBC java-1.8.0-openjdk
 rpm -ivh /tmp/expressclssss*
+rpm -ivh /tmp/avcli*
 
 # Installing license of SSS BASE and optional products
 clplcnsc -i /tmp/XSSS*
@@ -260,20 +237,23 @@ Add a Failover-Group named `VMs`
     # IP address of ztC Edge
     IP=192.168.2.10
 
+    # Password for admin user of ztC Edge
+    PWD="PASSWORD"
+
     # VM name to be protected
     VM=WinVM1
 
     #------------
 
     echo "[I] starting [$VM]"
-    ssh $IP avcli vm-poweron $VM
+    avcli -H $IP -u admin -p $PWD vm-poweron $VM
     if [ $? -ne 0 ]; then
             echo "[E] failed to start [$VM]"
             exit 1
     fi
     for (( i=0; i<10; i++ )); do
             sleep $(( 10 * (i + 1) ))
-            state=`ssh $IP avcli vm-info $VM | grep "  -> state              :" | sed 's/^.*: //'`
+            state=`avcli -H $IP -u admin -p $PWD vm-info $VM | grep "  -> state              :" | sed 's/^.*: //'`
             echo "[I] state = [$state]"
             if [ $state = "running" ]; then
                     exit 0
@@ -294,19 +274,22 @@ Add a Failover-Group named `VMs`
     # IP address of ztC Edge
     IP=192.168.2.10
 
+    # Password for admin user of ztC Edge
+    PWD="PASSWORD"
+
     # VM name to be protected
     VM=WinVM1
 
     #------------
 
     echo "[I] stopping [$VM]"
-    ssh $IP avcli vm-shutdown $VM
+    avcli -H $IP -u admin -p $PWD vm-shutdown $VM
     if [ $? -ne 0 ]; then
             echo "[E] failed to stop [$VM]"
     fi
     for (( i=0; i<10; i++ )); do
             sleep $(( 10 * (i + 1) ))
-            state=`ssh $IP avcli vm-info $VM | grep "  -> state              :" | sed 's/^.*: //'`
+            state=`avcli -H $IP -u admin -p $PWD vm-info $VM | grep "  -> state              :" | sed 's/^.*: //'`
             echo "[I] state = [$state]"
             if [ $state = "stopped" ]; then
                     exit 0
