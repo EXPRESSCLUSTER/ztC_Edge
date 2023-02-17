@@ -13,6 +13,14 @@ Fault-Tolerant configuration
 In either configuration, the role of SSS is to monitor the application running on VMs and restart the VM on abnormal detection.
 DBMS (MS SQL) and HTTPD (IIS) are used in the validation.
 
+### Versions / Models in the validation
+- EXPRESSCLUSTER X SingleServerSafe 5.0 for Linux VM
+- AlmaLinux 8.6
+- Stratus ztC Edge 200i
+- Stratus Redundant Linux Release 2.3.2.0
+- Windows Server 2022
+- Microsoft SQL Server 2022 Express
+
 ### Configuration of SRL (Stratus Redundant Linux)
 
 | Parameter         | Value             |
